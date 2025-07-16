@@ -9,6 +9,8 @@
 
 library(shiny)
 library(tidyverse)
+library(shinyWidgets)
+
 
 # create file with dependencies for hosting
 # rerun if adding new packages
@@ -29,11 +31,14 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
            p("Estimate your grades for these assessments:") ,
+           
+           # All your styles will go here
+  
            sliderInput("Assig",
                         "Assignments",
                         min = 0,
                         max = 100,
-                        value = 51),
+                        value = 51, ),
             sliderInput("Quiz",
                         "Quizzes",
                         min = 0,
@@ -105,10 +110,12 @@ server <- function(input, output) {
       
       p <- ggplot(df, aes(x = Total, y = Grade, fill = Assessment)) +
         geom_bar(stat = "identity") +
-        theme_classic() +
+        theme_bw(base_size = 16) +
         theme(axis.text.x = element_blank()) +
         scale_y_continuous(limits = c(0,100),
-                           breaks = c(0,60,70,70,80,90,100)) 
+                           breaks = c(0,60,70,70,80,90,100)) +
+        scale_fill_manual(values = c("#377eb8", "#4daf4a",
+                                     "#984ea3", "#e7298a", "#1b9e77"))
       print(p)
       
     })
