@@ -10,6 +10,11 @@
 library(shiny)
 library(tidyverse)
 
+# create file with dependencies for hosting
+# rerun if adding new packages
+#library(rsconnect)
+#rsconnect::writeManifest()
+
 # setup
 Assessment <- c("Assignments", "Quizzes", "Labs", "Mid-term exam", "Final exam")
 #Grades <- c(70,80,90,80,70)
