@@ -28,7 +28,7 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-           p("Estimate your grades for the following assessments:") ,
+           p("Estimate your grades for these assessments:") ,
            sliderInput("Assig",
                         "Assignments",
                         min = 0,
