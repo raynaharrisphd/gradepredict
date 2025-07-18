@@ -19,6 +19,8 @@ library(shinyWidgets)
 
 # setup
 Assessment <- c("Assignments", "Quizzes", "Labs", "Mid-term exam", "Final exam")
+assessmentlevels <- Assessment
+
 #Grades <- c(70,80,90,80,70)
 
 # Define UI for application that draws a histogram
@@ -38,22 +40,22 @@ ui <- fluidPage(
                         "Assignments",
                         min = 0,
                         max = 100,
-                        value = 51, ),
+                        value = 75, ),
             sliderInput("Quiz",
                         "Quizzes",
                         min = 0,
                         max = 100,
-                        value = 80),
+                        value = 100),
             sliderInput("Lab",
                         "Labs",
                         min = 0,
                         max = 100,
-                        value = 91),
+                        value = 75),
             sliderInput("Midterm",
                         "Mid-term exam",
                         min = 0,
                         max = 100,
-                        value = 76),
+                        value = 100),
             sliderInput("Final",
                         "Final exam",
                         min = 0,
@@ -64,11 +66,13 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-           p("Final Grade Estimate"),
-           tableOutput("table"),
-           p("Stacked Bar Plot of Estimated Grade"),
+          p("Student master will be assessed through assignments, quizzes, labs, a midterm exam, and a comprehensive final exam. At any time, you may check your grade and class progress using Canvas. Your grade is based on the following: 20%: Laboratory reports, 20%: Lecture assignments, 20%: Quizzes, 20%: Midterm Exam, 20%: Final Exam, 100%: Total. Letter grades will be awarded according to the grading 60/70/80/90 convention, rounding to two significant digits with 0.5 rounded to 1. "),
+            p("F: 0 - 59.4% D: 59.5 - 69.4% C: 69.5 - 79.4% B: 79.5 - 89.4% A: 89.5 - 100%"),
+          br(), 
+          tableOutput("table"),
+           h5("Stacked Bar Plot of Estimated Grade"),
            plotOutput("plot"),
-           p("Table of Input Grades to Points"),
+           h5("Table of Input Grades to Points out of 100 Total"),
            tableOutput("summary")
         )
     )
@@ -86,16 +90,16 @@ server <- function(input, output) {
         mutate(Percent = 0.2,
                Grades = as.numeric(Grades),
                Points = Grades * Percent) %>%
-        summarize("Grade" = sum(Points)) %>%
-        mutate(Letter = ifelse(Grade > 59.5 & Grade < 69.4999, "D",
-                               ifelse(Grade > 69.5 & Grade < 79.4999, "C",
-                                      ifelse(Grade > 79.5  & Grade < 89.4999, "B",
-                                             ifelse(Grade > 89.5, "A", "F")))))
+        summarize(Grade = sum(Points)) %>%
+        mutate(Letter = ifelse(Grade >= 59.5 & Grade < 69.5, "D",
+                               ifelse(Grade >= 69.5 & Grade < 79.5, "C",
+                                      ifelse(Grade >= 79.5  & Grade < 89.5, "B",
+                                             ifelse(Grade >= 89.5, "A", "F")))))
       
       print(df)
     })
     
-    output$plot <- renderPlot({
+  output$plot <- renderPlot({
       
       
       Grades <- c(input$Assig, input$Quiz, input$Lab, input$Midterm, input$Final)
@@ -105,17 +109,20 @@ server <- function(input, output) {
         mutate(Percent = 0.2,
                Total = "Total",
                Grades = as.numeric(Grades),
-               Grade = Grades * Percent) %>%
-        select(Total, Assessment, Grade) 
+               Grade = Grades * Percent,
+               Assessment = factor(Assessment, levels = assessmentlevels))  %>%
+        select(Total, Assessment, Grade)  
       
       p <- ggplot(df, aes(x = Total, y = Grade, fill = Assessment)) +
         geom_bar(stat = "identity") +
         theme_bw(base_size = 16) +
-        theme(axis.text.x = element_blank()) +
+        theme(axis.ticks.x  = element_blank(),
+              axis.text.x  = element_blank()) +
         scale_y_continuous(limits = c(0,100),
-                           breaks = c(0,60,70,70,80,90,100)) +
+                           breaks = c(0,10,20,30,40,50,60,70,70,80,90,100)) +
         scale_fill_manual(values = c("#377eb8", "#4daf4a",
-                                     "#984ea3", "#e7298a", "#1b9e77"))
+                                     "#984ea3", "#e7298a", "#1b9e77")) +
+        labs(y = "Estimated Grade", x = NULL)
       print(p)
       
     })
